@@ -118,12 +118,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- 5. Booking Form Submit ---
+  // --- 5. Testimonial Slider ---
+  const testimonialSlider = document.getElementById('testimonial-slider');
+  const testimonialPrev = document.querySelector('.testimonial-prev');
+  const testimonialNext = document.querySelector('.testimonial-next');
+
+  if (testimonialSlider) {
+    const tScrollAmount = 344; // 320px card + 24px gap
+
+    // Arrow buttons
+    if (testimonialPrev) {
+      testimonialPrev.addEventListener('click', () => {
+        testimonialSlider.scrollBy({ left: -tScrollAmount, behavior: 'smooth' });
+      });
+    }
+    if (testimonialNext) {
+      testimonialNext.addEventListener('click', () => {
+        testimonialSlider.scrollBy({ left: tScrollAmount, behavior: 'smooth' });
+      });
+    }
+
+    // Horizontal wheel scroll
+    let tIsWheeling = false;
+    let tWheelTimer;
+    testimonialSlider.addEventListener('wheel', (evt) => {
+      if (evt.deltaY !== 0) {
+        evt.preventDefault();
+        if (!tIsWheeling) {
+          tIsWheeling = true;
+          const dir = evt.deltaY > 0 ? 1 : -1;
+          testimonialSlider.scrollBy({ left: dir * tScrollAmount, behavior: 'smooth' });
+        }
+        clearTimeout(tWheelTimer);
+        tWheelTimer = setTimeout(() => { tIsWheeling = false; }, 250);
+      }
+    }, { passive: false });
+
+    // Auto-scroll (pause on hover)
+    let autoScrollInterval;
+    const startAutoScroll = () => {
+      autoScrollInterval = setInterval(() => {
+        const maxScroll = testimonialSlider.scrollWidth - testimonialSlider.clientWidth;
+        if (testimonialSlider.scrollLeft >= maxScroll - 10) {
+          testimonialSlider.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          testimonialSlider.scrollBy({ left: tScrollAmount, behavior: 'smooth' });
+        }
+      }, 4000);
+    };
+
+    if (!prefersReducedMotion) {
+      startAutoScroll();
+      testimonialSlider.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+      testimonialSlider.addEventListener('mouseleave', startAutoScroll);
+    }
+  }
+
+  // --- 6. Booking Form Submit ---
   const bookingForm = document.getElementById('booking-form');
   if (bookingForm) {
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      alert('Your booking request for your Ferrari Purosangue has been submitted. Our concierge will contact you shortly.');
+      alert('Your booking request has been submitted. Our team will contact you shortly.');
       bookingForm.reset();
     });
   }
