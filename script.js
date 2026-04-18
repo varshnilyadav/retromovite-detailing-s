@@ -1,0 +1,131 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+  // --- 1. Header Scroll Effect ---
+  const header = document.querySelector('.main-header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
+  // --- 2. Slider Component logic for Services ---
+  const sliderContainer = document.getElementById('services-slider');
+  const prevBtn = document.querySelector('.prev-btn');
+  const nextBtn = document.querySelector('.next-btn');
+
+  if (sliderContainer) {
+    const scrollAmount = 382; // 350px width + 32px gap
+    let isWheeling = false;
+    let wheelTimer;
+
+    // Horizontal scroll override with snapping throttle
+    sliderContainer.addEventListener('wheel', (evt) => {
+      if (evt.deltaY !== 0) {
+        evt.preventDefault();
+        if (!isWheeling) {
+          isWheeling = true;
+          const direction = evt.deltaY > 0 ? 1 : -1;
+          sliderContainer.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(() => { isWheeling = false; }, 250);
+      }
+    }, { passive: false });
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        sliderContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        sliderContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+    }
+  }
+
+  // --- 3. Intersection Observer (Fade-In Animations) ---
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.2
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  const fadeElements = document.querySelectorAll('.fade-in');
+  fadeElements.forEach(el => {
+    if (prefersReducedMotion) {
+      el.classList.add('visible');
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      el.style.transition = 'none';
+    } else {
+      observer.observe(el);
+    }
+  });
+
+  // --- 4. Lightbox (Gallery Portfolio) ---
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxClose = document.querySelector('.lightbox-close');
+  const galleryItems = document.querySelectorAll('.grid-item');
+
+  galleryItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const img = item.querySelector('.gallery-img');
+      if (img) {
+        lightboxImg.src = img.src;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+
+  const closeLightbox = () => {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  if (lightboxClose) {
+    lightboxClose.addEventListener('click', closeLightbox);
+  }
+
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      closeLightbox();
+    }
+  });
+
+  // --- 5. Booking Form Submit ---
+  const bookingForm = document.getElementById('booking-form');
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Your booking request for your Ferrari Purosangue has been submitted. Our concierge will contact you shortly.');
+      bookingForm.reset();
+    });
+  }
+
+});
