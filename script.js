@@ -174,12 +174,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- 6. Booking Form Submit ---
+  // --- 6. Booking Form Submit → WhatsApp ---
   const bookingForm = document.getElementById('booking-form');
   if (bookingForm) {
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      alert('Your booking request has been submitted. Our team will contact you shortly.');
+
+      const name = document.getElementById('name').value.trim();
+      const model = document.getElementById('model').value.trim();
+      const serviceEl = document.getElementById('service');
+      const serviceText = serviceEl.options[serviceEl.selectedIndex].text;
+      const date = document.getElementById('date').value;
+
+      const message =
+        `🔧 *New Booking Request*\n\n` +
+        `👤 *Name:* ${name}\n` +
+        `🚗 *Vehicle:* ${model}\n` +
+        `🛠️ *Service:* ${serviceText}\n` +
+        `📅 *Preferred Date:* ${date}\n\n` +
+        `Sent from retromovitedetailing.com`;
+
+      const waURL = `https://wa.me/919177790044?text=${encodeURIComponent(message)}`;
+      window.open(waURL, '_blank');
       bookingForm.reset();
     });
   }
